@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: translation-postgres
+    environment:
+      POSTGRES_DB: translation_db
+      POSTGRES_USER: translation_user
+      POSTGRES_PASSWORD: translation_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - translation-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U translation_user -d translation_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: translation-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - translation-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Translation Service Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: translation-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/translation_db
+      SPRING_DATASOURCE_USERNAME: translation_user
+      SPRING_DATASOURCE_PASSWORD: translation_pass
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SPRING_SECURITY_JWT_SECRET: jY4k+7D/Y+7cPtyE1g6AfLk7T9NmHtXHBFzrhXfZc9R/xZK1Z4Juz7XLj+xPbJeeg5ZJfZULPIxslk7Dn4N1q6Q==
+      SPRING_SECURITY_JWT_EXPIRATION: 86400000
+      APP_DATA_SEEDER_ENABLED: false
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - translation-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: translation-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    networks:
+      - translation-network
+    restart: unless-stopped
+    profiles:
+      - with-nginx
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  translation-network:
+    driver: bridge

@@ -1,0 +1,101 @@
+spring:
+  application:
+    name: translation-service
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/translation_db
+    username: translation_user
+    password: translation_pass
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+        jdbc.batch_versioned_data: true
+  
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  
+  redis:
+    host: redis
+    port: 6379
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+  
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000 # 5 minutes
+  
+  security:
+    jwt:
+      secret: jY4k+7D/Y+7cPtyE1g6AfLk7T9NmHtXHBFzrhXfZc9R/xZK1Z4Juz7XLj+xPbJeeg5ZJfZULPIxslk7Dn4N1q6Q==
+      expiration: 86400000 # 24 hours
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    com.digitaltolk.translationservice: INFO
+    org.springframework.security: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+  info:
+    title: Translation Management Service API
+    description: API for managing translations across multiple locales with tagging support
+    version: 1.0.0
+    contact:
+      name: DigitalTolk
+      email: support@digitaltolk.com
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000,http://localhost:8080
+  cdn:
+    enabled: false
+    base-url: https://cdn.example.com
+  performance:
+    cache-ttl: 300 # 5 minutes
+    max-export-size: 100000 # Maximum translations in single export
+  data-seeder:
+    enabled: true # Set to true to populate database with 100k+ records for testing
