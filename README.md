@@ -208,16 +208,8 @@ mvn test
 mvn clean test jacoco:report
 ```
 
-### Performance Testing
-```bash
-# Enable data seeding for performance testing
-mvn spring-boot:run -Dapp.data-seeder.enabled=true
-```
-
 ### Test Categories
 - **Unit Tests**: Service and repository layer testing
-- **Integration Tests**: Full API endpoint testing with TestContainers
-- **Performance Tests**: Load testing with 100k+ records
 
 ## Performance Benchmarks
 
@@ -227,11 +219,7 @@ mvn spring-boot:run -Dapp.data-seeder.enabled=true
 - **Export Endpoint**: < 500ms
 - **Bulk Operations**: Optimized batch processing
 
-### Scalability Metrics
-- **Database**: Supports millions of translations
-- **Concurrent Users**: Tested with 100+ concurrent requests
-- **Memory Usage**: Optimized with Redis caching
-- **Export Size**: Handles 100k+ translations efficiently
+
 
 ## Configuration
 
@@ -314,7 +302,6 @@ docker-compose --profile with-nginx up -d
 ### Input Validation
 - Bean validation annotations
 - Custom validation logic
-- SQL injection prevention
 
 ## Performance Optimization
 
@@ -327,7 +314,6 @@ docker-compose --profile with-nginx up -d
 ### Database Optimization
 - Strategic indexing on frequently queried columns
 - Full-text search capabilities
-- Optimized query patterns
 - Connection pooling
 
 ### API Optimization
@@ -344,47 +330,8 @@ Simply add translations with new locale codes - the system automatically support
 ### Custom Tag Types
 Extend the tagging system by adding new tag categories and validation rules.
 
-### Export Formats
-Implement additional export formats by extending the export service.
 
-### Authentication Providers
-Integrate with external authentication systems (OAuth2, LDAP, etc.).
 
-## Development Guidelines
-
-### Code Style
-- Follow Java coding conventions
-- Use meaningful variable and method names
-- Comprehensive JavaDoc documentation
-- SOLID principles implementation
-
-### Testing Strategy
-- Unit tests for all service methods
-- Integration tests for API endpoints
-- Performance tests for scalability
-- Mock external dependencies
-
-### Git Workflow
-- Feature branch development
-- Pull request reviews
-- Automated CI/CD pipeline
-- Semantic versioning
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Implement your changes with tests
-4. Ensure all tests pass
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Troubleshooting
-
-### Common Issues
 
 #### Database Connection Issues
 ```bash
@@ -412,18 +359,4 @@ docker-compose logs app
 # Check health status
 curl http://localhost:8080/api/v1/actuator/health
 ```
-
-### Performance Issues
-- Check Redis cache hit rates
-- Monitor database query performance
-- Review application metrics
-- Analyze JVM memory usage
-
-## Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the documentation
-- Review the troubleshooting guide
-- Contact the development team
 
